@@ -1,2 +1,2 @@
-# HyperTrack---Where-Speed-Meets-Comfort
+# HyperTrack
 A Laravel - based Ecommerce System
