@@ -42,7 +42,16 @@
                         <h5 class="card-title">{{ $product->name }}</h5>
                         <p class="card-text text-muted">{{ $product->description ?? 'No description available' }}</p>
                         <h6 class="text-primary">${{ number_format($product->price, 2) }}</h6>
-                        <a href="{{ route('cart.add', $product->id) }}" class="btn btn-orange mt-3 mr-2 add-to-cart-btn" style="font-family: 'Roboto', sans-serif;">Add to Cart</a>
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ route('cart.add', $product->id) }}" 
+                               class="btn btn-orange add-to-cart-btn" 
+                               style="font-family: 'Roboto', sans-serif;">
+                                Add to Cart
+                            </a>
+                            <form method="GET" action="{{ route('purchases.checkout', $product->id) }}">
+                                <button type="submit" class="btn btn-primary buy-now-btn">Buy Now</button>
+                            </form>                             
+                        </div>
                     </div>
                 </div>
             </div>

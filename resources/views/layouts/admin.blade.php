@@ -26,6 +26,7 @@
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">🏠 Admin Dashboard</a></li>
             <li><a class="dropdown-item" href="{{ route('admin.products.index') }}">📦 Manage Products</a></li>
+            <li><a class="dropdown-item" href="{{ route('admin.reviews.index') }}">📦 Manage Reviews</a></li>
             <li>
                 <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

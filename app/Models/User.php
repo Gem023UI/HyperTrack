@@ -52,4 +52,13 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Get all purchases for the user.
+     */
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
 }
