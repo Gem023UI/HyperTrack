@@ -26,4 +26,5 @@ class Product extends Model
     {
         return $this->images()->first()?->image_path;
     }
+
 }

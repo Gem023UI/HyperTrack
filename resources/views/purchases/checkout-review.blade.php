@@ -48,13 +48,14 @@
                             <div class="d-flex gap-2 mt-3">
                                 <button type="submit" class="btn btn-success">Place Order</button>
                                 <a href="{{ route('home') }}" class="btn btn-secondary"
-                                onclick="event.preventDefault(); document.getElementById('cancel-checkout-form').submit();">Cancel Order</a>
+                                    onclick="event.preventDefault(); document.getElementById('cancel-checkout-form').submit();">Cancel Order</a>
 
                                 <form id="cancel-checkout-form" action="{{ route('purchases.cancelCheckout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
                             </div>
                         </form>
+                                            
                     </div>
                 </div>
             </div>

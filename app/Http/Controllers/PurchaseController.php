@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Purchase;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Darryldecode\Cart\Facades\CartFacade as Cart;
 
 class PurchaseController extends Controller
 {
@@ -20,12 +20,11 @@ class PurchaseController extends Controller
         return view('purchases.checkout-form', compact('product'));
     }
 
-
-    public function show(Purchase $purchase)
+    public function show(Order $order)
     {
-        $this->authorize('view', $purchase);
-        $purchase->load(['items.product.images', 'shippingAddress']);
-        return view('purchases.show', compact('purchase'));
+        $this->authorize('view', $order);
+        $order->load(['items.product', 'user']);
+        return view('purchases.show', compact('order'));
     }
 
     public function review()
@@ -64,5 +63,69 @@ class PurchaseController extends Controller
         return redirect()->route('home')->with('info', 'Checkout cancelled.');
     }
 
+    // PurchaseController.php
+
+    public function placeOrder(Request $request)
+    {
+        // Validate the shipping address
+        $request->validate([
+            'shipping_address' => 'required|string|max:255',
+        ]);
+
+        // Retrieve the product ID and quantity from the session
+        $productId = session('checkout.product_id');
+        $quantity = session('checkout.quantity');
+
+        // Check if checkout session data exists
+        if (!$productId || !$quantity) {
+            return redirect()->route('home')->with('error', 'Missing checkout session data.');
+        }
+
+        // Retrieve the product and user
+        $product = Product::findOrFail($productId);
+        $user = Auth::user();
+
+        // Start a database transaction to ensure data consistency
+        \DB::beginTransaction();
+
+        try {
+            // Insert into the 'orders' table
+            $order = Order::create([
+                'user_id' => $user->id,
+                'total_price' => $product->price * $quantity,
+                'status' => 'pending',
+            ]);
+
+            // Insert into the 'order_items' table
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'price' => $product->price,
+            ]);
+
+            // OPTIONAL: Save shipping address if needed (you can create a shipping_address table)
+            // For now, we'll just store it in the session or elsewhere
+            // For example: $order->shipping_address = $request->input('shipping_address');
+            
+            // Commit the transaction
+            \DB::commit();
+
+            // Clear the session data after the order is placed
+            session()->forget(['checkout.product_id', 'checkout.quantity']);
+
+            // Redirect to the orders list with a success message
+            return redirect()->route('purchases.index')->with('success', 'Order placed successfully!');
+        } catch (\Exception $e) {
+            // Rollback the transaction in case of an error
+            \DB::rollBack();
+
+            // Log the error (optional)
+            \Log::error('Order placement failed: ' . $e->getMessage());
+
+            // Redirect with an error message
+            return redirect()->route('purchases.review')->with('error', 'There was an issue placing your order. Please try again.');
+        }
+    }
 
 }
