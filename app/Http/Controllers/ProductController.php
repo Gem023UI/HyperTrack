@@ -2,69 +2,119 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Brand;
+use App\Models\Type;
 
 class ProductController extends Controller
 {
-    public function index()
+    // Index - shows the list of products with filtering
+    public function index(Request $request)
     {
-        $products = Product::with('images')->get(); // Load products with images
-        return view('admin.products.index', compact('products'));
+        $query = Product::with(['images', 'brand', 'type']);
+        
+        // Add filters if they exist in the request
+        if ($request->filled('brand_id')) {
+            $query->where('brand_id', $request->brand_id);
+        }
+        
+        if ($request->filled('type_id')) {
+            $query->where('type_id', $request->type_id);
+        }
+        
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        
+        $products = $query->latest()->get();
+        $brands = Brand::all();
+        $types = Type::all();
+        
+        return view('admin.products.index', compact('products', 'brands', 'types'));
     }
 
+    // Create - shows the form to add a product
     public function create()
     {
-        return view('admin.products.create');
+        $brands = Brand::all();
+        $types = Type::all();
+        return view('admin.products.create', compact('brands', 'types'));
     }
 
-    public function store(Request $request)
+    // Store - saves a new product
+    public function store(ProductRequest $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate multiple images
+            'brand_id' => 'nullable|exists:brand,id',
+            'type_id' => 'nullable|exists:types,id',
+            'images' => 'required',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // Create product
-        $product = Product::create($request->only('name', 'description', 'price', 'stock'));
+        $product = Product::create($request->only([
+            'name', 'description', 'price', 'stock', 'brand_id', 'type_id'
+        ]));
 
-        // Handle multiple image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('products', 'public');
-                $product->images()->create(['image_path' => $imagePath]); // Use Eloquent relationship
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('products', $imageName, 'public');
+                $product->images()->create([
+                    'image_path' => $imagePath
+                ]);
             }
         }
 
         return redirect()->route('admin.products.index')->with('success', 'Product added successfully!');
     }
 
+    // Edit - shows the form to edit a product
     public function edit(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $brands = Brand::all();
+        $types = Type::all();
+        return view('admin.products.edit', compact('product', 'brands', 'types'));
     }
 
-    public function update(Request $request, Product $product)
+    // Update - updates an existing product
+    public function update(ProductRequest $request, Product $product)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Allow optional image update
+            'brand_id' => 'nullable|exists:brand,id',
+            'type_id' => 'nullable|exists:types,id',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $product->update($request->only(['name', 'description', 'price', 'stock']));
+        $product->update($request->only([
+            'name', 'description', 'price', 'stock', 'brand_id', 'type_id'
+        ]));
 
-        // Handle new images
         if ($request->hasFile('images')) {
+            // Optionally delete old images if replacing
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->image_path);
+                $image->delete();
+            }
+
             foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('products', 'public');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('products', $imageName, 'public');
                 $product->images()->create(['image_path' => $imagePath]);
             }
         }
@@ -72,6 +122,7 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
+    // Destroy - delete product (and its images optionally)
     public function destroy(Product $product)
     {
         // Delete associated images

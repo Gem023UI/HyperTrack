@@ -21,8 +21,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_picture', // Allow mass assignment for profile picture
         'role', // Allow mass assignment for role
+        'status', // Allow mass assignment for status
     ];
+
+    public function getProfilePictureUrlAttribute()
+{
+    return $this->profile_picture ? asset('storage/'.$this->profile_picture) : null;
+}
 
     /**
      * The attributes that should be hidden for serialization.
@@ -43,6 +50,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'role' => 'string', // Cast role to string
+        'status' => 'string', // Cast status to string
     ];
 
     /**
@@ -52,13 +60,4 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
-
-    /**
-     * Get all purchases for the user.
-     */
-    public function purchases()
-    {
-        return $this->hasMany(Purchase::class);
-    }
-
 }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Models\Product;
-
 
 class HomeController extends Controller
 {
@@ -24,9 +22,19 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all(); // Fetch all products
-        return view('home', compact('products'));
+        // Optional: Handle search input from home page
+        $query = trim($request->input('query'));
+
+        if (!empty($query)) {
+            // If search term is provided, use Laravel Scout search
+            $products = Product::search($query)->paginate(10);
+        } else {
+            // Default: Fetch all products with pagination
+            $products = Product::paginate(10);
+        }
+
+        return view('home', compact('products', 'query'));
     }
 }

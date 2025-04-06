@@ -11,21 +11,8 @@ class Order extends Model
 
     protected $fillable = ['user_id', 'total_price', 'status'];
 
-    // Define the relationship to the User model
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    // Define the relationship to the OrderItem model
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
 }
