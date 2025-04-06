@@ -22,9 +22,29 @@
                     <tr>
                         <td>{{ $product->name }}</td>
                         <td>${{ number_format($product->price, 2) }}</td>
-                        <td>{{ $product->cart_qty }}</td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <form action="{{ route('cart.update', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="action" value="decrease">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">−</button>
+                                </form>
+                                                                
+                                <span class="mx-2">{{ $product->cart_qty }}</span>
+                                                                
+                                <form action="{{ route('cart.update', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="action" value="increase">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
+                                </form>                                
+                            </div>
+                        </td>
                         <td>${{ number_format($product->price * $product->cart_qty, 2) }}</td>
-
+                        <td>
+                            <!-- Add actions like remove, or more here -->
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

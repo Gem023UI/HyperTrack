@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('cart.index');
         Route::get('/add/{product_id}', [CartController::class, 'addToCart'])->name('cart.add');
+        Route::patch('/update/{product_id}', [CartController::class, 'update'])->name('cart.update'); // Removed the duplicate 'cart/'
     });
 
     // Profile
