@@ -7,6 +7,10 @@
     @if ($cartProducts->isEmpty())
         <div class="alert alert-info">Your cart is empty.</div>
     @else
+        <div class="text-end mb-3">
+            <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+        </div>
+        
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
@@ -43,7 +47,11 @@
                         </td>
                         <td>${{ number_format($product->price * $product->cart_qty, 2) }}</td>
                         <td>
-                            <!-- Add actions like remove, or more here -->
+                            <form action="{{ route('cart.remove', $product->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -26,10 +27,21 @@ class User extends Authenticatable
         'status', // Allow mass assignment for status
     ];
 
+    /**
+     * Get the URL for the user's profile picture
+     */
     public function getProfilePictureUrlAttribute()
-{
-    return $this->profile_picture ? asset('storage/'.$this->profile_picture) : null;
-}
+    {
+        return $this->profile_picture ? asset('storage/'.$this->profile_picture) : null;
+    }
+
+    /**
+     * Relationship with orders
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

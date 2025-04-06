@@ -36,7 +36,18 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('cart.index');
         Route::get('/add/{product_id}', [CartController::class, 'addToCart'])->name('cart.add');
-        Route::patch('/update/{product_id}', [CartController::class, 'update'])->name('cart.update'); // Removed the duplicate 'cart/'
+        Route::patch('/update/{product_id}', [CartController::class, 'update'])->name('cart.update');
+        Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/process-payment', [CartController::class, 'processPayment'])->name('cart.process-payment');
+        Route::delete('/remove/{product_id}', [CartController::class, 'remove'])->name('cart.remove');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    });
+
+    // Order
+    Route::prefix('orders')->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Profile
