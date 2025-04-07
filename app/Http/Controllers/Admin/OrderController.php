@@ -8,26 +8,28 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    // Your existing methods
-
-    /**
-     * Display the specified order.
-     *
-     * @param  \App\Models\Order  $order
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Order $order)
+    public function index()
     {
-        // Make sure users can only see their own orders unless they're an admin
-        if (!auth()->user()->is_admin && auth()->id() !== $order->user_id) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        // Load the order items with their products
-        $order->load('items.product', 'user');
-        
-        return view('orders.show', compact('order'));
+        $orders = Order::with(['user', 'items.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('admin.order.index', compact('orders'));
     }
-    
-    // Rest of your controller methods
+
+    public function updateStatus(Order $order, Request $request)
+    {
+        $validStatuses = ['pending', 'to_ship', 'to_deliver', 'completed'];
+        
+        $request->validate([
+            'status' => ['required', 'in:' . implode(',', $validStatuses)]
+        ]);
+        
+        try {
+            $order->update(['status' => $request->status]);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

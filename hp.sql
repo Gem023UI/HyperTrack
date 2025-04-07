@@ -3,13 +3,14 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 06:31 AM
+-- Generation Time: Apr 06, 2025 at 03:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -115,7 +116,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (64, '2025_04_05_172638_add_brand_id_to_products_table', 8),
 (65, '2025_04_05_190822_add_status_to_users_table', 8),
 (67, '2025_04_06_025500_create_order_items', 9),
-(68, '2025_04_06_025738_add_status_to_orders_table', 9);
+(68, '2025_04_06_025738_add_status_to_orders_table', 9),
+(69, '2025_04_06_082400_create_order_items_table', 10),
+(71, '2025_04_06_084229_add_shipping_address_to_orders_table', 11);
 
 -- --------------------------------------------------------
 
@@ -128,9 +131,18 @@ CREATE TABLE `orders` (
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `total_price` decimal(10,2) NOT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'pending',
+  `shipping_address` text NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `total_price`, `status`, `shipping_address`, `created_at`, `updated_at`) VALUES
+(1, 1, 100000.00, 'pending', 'dfherfbrwergss', '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(2, 1, 100000.00, 'pending', 'dito lang banda kila josh', '2025-04-06 05:30:56', '2025-04-06 05:30:56');
 
 -- --------------------------------------------------------
 
@@ -147,6 +159,22 @@ CREATE TABLE `order_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `order_items`
+--
+
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 1, 3500.00, '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(2, 1, 2, 1, 7500.00, '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(3, 1, 3, 1, 11000.00, '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(4, 1, 4, 1, 3000.00, '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(5, 1, 5, 1, 75000.00, '2025-04-06 05:21:34', '2025-04-06 05:21:34'),
+(6, 2, 1, 1, 3500.00, '2025-04-06 05:30:56', '2025-04-06 05:30:56'),
+(7, 2, 2, 1, 7500.00, '2025-04-06 05:30:56', '2025-04-06 05:30:56'),
+(8, 2, 3, 1, 11000.00, '2025-04-06 05:30:56', '2025-04-06 05:30:56'),
+(9, 2, 4, 1, 3000.00, '2025-04-06 05:30:56', '2025-04-06 05:30:56'),
+(10, 2, 5, 1, 75000.00, '2025-04-06 05:30:56', '2025-04-06 05:30:56');
 
 -- --------------------------------------------------------
 
@@ -420,19 +448,19 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -485,8 +513,8 @@ ALTER TABLE `orders`
 -- Constraints for table `order_items`
 --
 ALTER TABLE `order_items`
-  ADD CONSTRAINT `order_items_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `order_items_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
 
 --
 -- Constraints for table `products`

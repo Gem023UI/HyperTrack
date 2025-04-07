@@ -37,9 +37,17 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('home') }}"><i class="fas fa-home me-1"></i> Home</a>
                             </li>
+                            <!-- Orders Navigation Link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('orders.index') }}"><i class="fas fa-shopping-bag me-1"></i> My Orders</a>
+                            </li>
                             @if(auth()->user()->is_admin)
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Admin Dashboard</a>
+                                </li>
+                                <!-- Admin Orders Management Link -->
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.orders') }}"><i class="fas fa-clipboard-list me-1"></i> Manage Orders</a>
                                 </li>
                             @endif
                         @endauth
@@ -93,6 +101,10 @@
                                     </a>
                                     <a class="dropdown-item" href="{{ route('profile.edit') }}">
                                         <i class="fas fa-cog me-2"></i> Edit Profile
+                                    </a>
+                                    <!-- Orders Option in Dropdown -->
+                                    <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                        <i class="fas fa-shopping-bag me-2"></i> My Orders
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="{{ route('logout') }}"

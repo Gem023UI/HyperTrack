@@ -6,8 +6,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\SearchController; // Added the SearchController import
 
@@ -45,9 +46,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Order
     Route::prefix('orders')->group(function () {
-    Route::get('/', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::patch('/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::get('/', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Profile
@@ -55,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [ProfileController::class, 'show'])->name('profile.show');
         Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     });
 });
 
@@ -89,7 +91,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Orders
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::patch('/{order}/update-status', [AdminOrderController::class, 'updateStatus'])
+            ->name('update-status');
     });
 
     // Reviews
